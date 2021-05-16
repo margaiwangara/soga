@@ -8,7 +8,8 @@
     "dev": "nodemon dist/index.js",
     "clean": "rimraf -rf dist/*",
     "watch": "tsc -w",
-    "test": "jest"
+    "test": "jest",
+    "migration:create": "mikro-orm migration:create"
   },
   "repository": {
     "type": "git",
@@ -39,6 +40,7 @@
     "@mikro-orm/migrations": "^4.5.4",
     "@mikro-orm/postgresql": "^4.5.4",
     "apollo-server-express": "^2.24.0",
+    "argon2": "^0.27.2",
     "class-validator": "^0.13.1",
     "express": "^4.17.1",
     "graphql": "^15.5.0",
