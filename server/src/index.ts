@@ -12,6 +12,7 @@ import redis from 'redis';
 import session from 'express-session';
 import connectRedis from 'connect-redis';
 import { MyContext } from './types';
+import env from './env';
 
 const main = async () => {
   try {
@@ -30,12 +31,12 @@ const main = async () => {
       session({
         name: 'auth',
         store: new RedisStore({ client: redisClient, disableTouch: true }),
-        secret:
-          '0avajbPF2JYGBJmupKsuHUZOj6Dwj51TBo9P20ItZq1C2SJcC4iU9sxJLB6YiyylQTV8QwwEwA42fUej',
+        secret: env.SESSION_SECRET,
         resave: false,
         saveUninitialized: false,
         cookie: {
-          maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
+          maxAge:
+            1000 * 60 * 60 * 24 * 365 * parseInt(env.COOKIE_EXPIRE.toString()), // 10 years
           httpOnly: true,
           sameSite: 'lax',
           secure: __prod__, // cookie only works in https
@@ -54,8 +55,10 @@ const main = async () => {
 
     apolloServer.applyMiddleware({ app });
 
-    const PORT = process.env.PORT || 2111;
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    const PORT = env.PORT || 2111;
+    app.listen(PORT, () =>
+      console.log(`Server running on port in ${env.NODE_ENV} mode on ${PORT}`),
+    );
     // add data to table
     // const post = await orm.em.create(Post, { title: 'Hello World!' });
     // await orm.em.persistAndFlush(post);
