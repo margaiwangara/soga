@@ -3,46 +3,41 @@ import { Box } from '@chakra-ui/layout';
 import { Form, Formik } from 'formik';
 import InputField from '../components/InputField';
 import Wrapper from '../components/Wrapper';
-import { useRegisterMutation } from '../generated/graphql';
+import { useLoginMutation } from '../generated/graphql';
 import { InitialRegisterFormInput } from '../initials';
 import { useRouter } from 'next/router';
+import { toErrorMap } from '../utils/toErrorMap';
+
 interface Props {}
 
 const INPUT_SPACING = 4;
 
-function Register() {
+function Login() {
   const router = useRouter();
-  const [, register] = useRegisterMutation();
+  const [, login] = useLoginMutation();
 
   return (
     <Wrapper variant="small">
       <Formik
         initialValues={InitialRegisterFormInput}
         onSubmit={async (values, { setErrors }) => {
+          const { email, password } = values;
           try {
-            const response = await register(values);
-            router.push('/');
+            const response = await login({ email, password });
+
+            if (response.data?.login.errors) {
+              setErrors(toErrorMap(response.data.login.errors));
+            } else if (response.data?.login.user) {
+              router.push('/');
+            }
           } catch (error) {
-            console.log('registration error', error);
+            console.log('login error', error);
           }
         }}
       >
         {({ isSubmitting }) => {
           return (
             <Form>
-              <InputField
-                name="name"
-                placeholder="Name"
-                label="Name"
-                required={true}
-              />
-              <Box mt={INPUT_SPACING}>
-                <InputField
-                  name="surname"
-                  placeholder="Surname"
-                  label="Surname"
-                />
-              </Box>
               <Box mt={INPUT_SPACING}>
                 <InputField
                   name="email"
@@ -67,7 +62,7 @@ function Register() {
                 isLoading={isSubmitting}
                 colorScheme="teal"
               >
-                register
+                login
               </Button>
             </Form>
           );
@@ -77,4 +72,4 @@ function Register() {
   );
 }
 
-export default Register;
+export default Login;
