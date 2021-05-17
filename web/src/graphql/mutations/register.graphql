@@ -12,11 +12,6 @@ mutation Register(
       password: $password
     }
   ) {
-    id
-    name
-    surname
-    email
-    createdAt
-    updatedAt
+    ...RegularUser
   }
 }
