@@ -30,14 +30,13 @@ const main = async () => {
 
     app.use(
       session({
-        name: 'auth',
+        name: env.COOKIE_NAME_AUTH,
         store: new RedisStore({ client: redisClient, disableTouch: true }),
         secret: env.SESSION_SECRET,
         resave: false,
         saveUninitialized: false,
         cookie: {
-          maxAge:
-            1000 * 60 * 60 * 24 * 365 * parseInt(env.COOKIE_EXPIRE.toString()), // 10 years
+          maxAge: eval(env.COOKIE_EXPIRE.toString()),
           httpOnly: true,
           sameSite: 'lax',
           secure: __prod__, // cookie only works in https

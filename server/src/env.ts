@@ -19,7 +19,8 @@ const env = cleanEnv(process.env, {
 
   // SESSION AND COOKIE
   SESSION_SECRET: str(),
-  COOKIE_EXPIRE: num(),
+  COOKIE_EXPIRE: str(),
+  COOKIE_NAME_AUTH: str(),
 });
 
 export default env;

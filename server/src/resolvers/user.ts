@@ -11,6 +11,7 @@ import {
   Resolver,
 } from 'type-graphql';
 import argon2 from 'argon2';
+import env from '../env';
 
 @InputType()
 class EmailPasswordInput {
@@ -114,5 +115,21 @@ export class UserResolver {
     return {
       user,
     };
+  }
+
+  @Mutation(() => Boolean)
+  async logout(@Ctx() { req, res }: MyContext): Promise<boolean> {
+    return new Promise((resolve) =>
+      req.session.destroy((error) => {
+        if (error) {
+          console.log('logout error', error);
+          resolve(false);
+          return;
+        }
+
+        res.clearCookie(env.COOKIE_NAME_AUTH);
+        resolve(true);
+      }),
+    );
   }
 }
