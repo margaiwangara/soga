@@ -7,8 +7,8 @@ import { useLoginMutation } from '../generated/graphql';
 import { InitialRegisterFormInput } from '../initials';
 import { useRouter } from 'next/router';
 import { toErrorMap } from '../utils/toErrorMap';
-
-interface Props {}
+import { withUrqlClient } from 'next-urql';
+import { createUrqlClient } from '../lib/createUrqlClient';
 
 const INPUT_SPACING = 4;
 
@@ -72,4 +72,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default withUrqlClient(createUrqlClient)(Login);
