@@ -13,6 +13,7 @@ import session from 'express-session';
 import connectRedis from 'connect-redis';
 import { MyContext } from './types';
 import env from './env';
+import cors from 'cors';
 
 const main = async () => {
   try {
@@ -44,6 +45,14 @@ const main = async () => {
       }),
     );
 
+    // init middleware
+    app.use(
+      cors({
+        origin: env.CLIENT_URL,
+        credentials: true,
+      }),
+    );
+
     // Apollo Server
     const apolloServer = new ApolloServer({
       schema: await buildSchema({
@@ -53,7 +62,8 @@ const main = async () => {
       context: ({ req, res }): MyContext => ({ em: orm.em, req, res }),
     });
 
-    apolloServer.applyMiddleware({ app });
+    // apply express middleware to apollo
+    apolloServer.applyMiddleware({ app, cors: false });
 
     const PORT = env.PORT || 2111;
     app.listen(PORT, () =>
