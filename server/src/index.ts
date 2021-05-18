@@ -14,9 +14,15 @@ import connectRedis from 'connect-redis';
 import { MyContext } from './types';
 import env from './env';
 import cors from 'cors';
+// import { sendEmail } from './utils/sendEmail';
+import { Server, Socket } from 'socket.io';
+import http from 'http';
+import { corsConfig, sessionConfig } from './config';
+import { OnlineUser } from './utils/websocket';
 
 const main = async () => {
   try {
+    // await sendEmail('johndoe@app.com', 'Hello John', 'Welcome to Soga');
     const orm = await MikroORM.init(microOrmConfig);
 
     // run migrations
@@ -28,29 +34,48 @@ const main = async () => {
     const RedisStore = connectRedis(session);
     const redisClient = redis.createClient();
 
-    app.use(
-      session({
-        name: env.COOKIE_NAME_AUTH,
-        store: new RedisStore({ client: redisClient, disableTouch: true }),
-        secret: env.SESSION_SECRET,
-        resave: false,
-        saveUninitialized: false,
-        cookie: {
-          maxAge: eval(env.COOKIE_EXPIRE.toString()),
-          httpOnly: true,
-          sameSite: 'lax',
-          secure: __prod__, // cookie only works in https
-        },
-      }),
-    );
+    const sessionMiddleware = session(sessionConfig(RedisStore, redisClient));
+    app.use(sessionMiddleware);
 
     // init middleware
-    app.use(
-      cors({
-        origin: env.CLIENT_URL,
-        credentials: true,
-      }),
-    );
+    app.use(cors(corsConfig));
+
+    // socketio connect
+    const server = http.createServer(app);
+    const io = new Server(server, {
+      cors: corsConfig,
+    });
+
+    // initialize users
+    let users: OnlineUser[] = [];
+
+    const addOnlineUser = (userId: string, socketId: string) => {
+      if (userId) {
+        !users.some((user) => user.userId === userId) &&
+          users.push({ userId, socketId });
+      }
+    };
+
+    const removeOnlineUser = (socketId: string) => {
+      users = users.filter((user) => user.socketId !== socketId);
+    };
+
+    io.on('connection', (socket: Socket) => {
+      console.log('Client is connected');
+
+      // const userId = socket.handshake.query.userId as string;
+
+      socket.on('addUser', (userId) => {
+        addOnlineUser(userId, socket.id);
+        io.emit('getUsers', users);
+      });
+
+      socket.on('disconnect', () => {
+        console.log('Client is disconnected');
+        removeOnlineUser(socket.id);
+        io.emit('getUsers', users);
+      });
+    });
 
     // Apollo Server
     const apolloServer = new ApolloServer({
@@ -65,7 +90,7 @@ const main = async () => {
     apolloServer.applyMiddleware({ app, cors: false });
 
     const PORT = env.PORT || 2111;
-    app.listen(PORT, () =>
+    server.listen(PORT, () =>
       console.log(`Server running on port in ${env.NODE_ENV} mode on ${PORT}`),
     );
     // add data to table
