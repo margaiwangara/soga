@@ -14,7 +14,7 @@ const NavBar: React.FC<NavBarProps> = () => {
 
   return (
     <>
-      {fetching || (logoutFetching && <Loading />)}
+      {/* {fetching || (logoutFetching && <Loading />)} */}
       <Flex bg="tan" p={4}>
         <Box ml="auto">
           {data?.me?.id ? (

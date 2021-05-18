@@ -7,17 +7,17 @@ import { createUrqlClient } from '../lib/createUrqlClient';
 import SocketIOClient, { Socket } from 'socket.io-client';
 import { useEffect, useState } from 'react';
 import { endpoint } from '../config';
-import { useToast } from '@chakra-ui/toast';
-import Loading from '../components/Loading';
+// import { useToast } from '@chakra-ui/toast';
+// import Loading from '../components/Loading';
 import { isServer } from '../utils/isServer';
 import { DefaultEventsMap } from 'socket.io-client/build/typed-events';
 
 function Home() {
   const [{ fetching, data }] = usePostsQuery();
-  const [{ fetching: currentUserFetching, data: currentUser }] = useMeQuery({
+  const [{ data: currentUser }] = useMeQuery({
     pause: isServer(),
   });
-  const toast = useToast();
+  // const toast = useToast();
 
   const [socket, setSocket] =
     useState<Socket<DefaultEventsMap, DefaultEventsMap> | null>(null);
