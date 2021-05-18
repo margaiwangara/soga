@@ -1,5 +1,34 @@
-import { Arg, Int, Mutation, Query, Resolver } from 'type-graphql';
+import { isAuth } from '../middleware/isAuth';
+import { MyContext } from '../types';
+import {
+  Arg,
+  Ctx,
+  Field,
+  InputType,
+  Int,
+  Mutation,
+  Query,
+  Resolver,
+  UseMiddleware,
+} from 'type-graphql';
 import { Post } from '../entities/Post';
+
+@InputType()
+class CreatePostInput {
+  @Field()
+  title: string;
+
+  @Field()
+  content: string;
+}
+@InputType()
+class UpdatePostInput {
+  @Field({ nullable: true })
+  title?: string;
+
+  @Field({ nullable: true })
+  content?: string;
+}
 
 @Resolver()
 export class PostResolver {
@@ -14,16 +43,30 @@ export class PostResolver {
   }
 
   @Mutation(() => Post)
-  async createPost(@Arg('title') title: string): Promise<Post> {
-    const post = await Post.create({ title }).save();
+  @UseMiddleware(isAuth)
+  async createPost(
+    @Arg('input') input: CreatePostInput,
+    @Ctx() { req }: MyContext,
+  ): Promise<Post> {
+    if (!req.session.userId) {
+      throw new Error('not authenticated');
+    }
+
+    const post = await Post.create({
+      ...input,
+      creatorId: req.session.userId,
+    }).save();
 
     return post;
   }
 
   @Mutation(() => Post, { nullable: false })
+  @UseMiddleware(isAuth)
   async updatePost(
     @Arg('id', () => Int) id: number,
-    @Arg('title', () => String, { nullable: true }) title: string,
+    @Arg('input', () => UpdatePostInput, { nullable: true })
+    input: UpdatePostInput,
+    @Ctx() { req }: MyContext,
   ): Promise<Post | null> {
     const post = await Post.findOne(id);
 
@@ -31,10 +74,17 @@ export class PostResolver {
       return null;
     }
 
-    if (typeof title !== 'undefined') {
-      post.title = title;
-      await Post.update({ id }, { title });
+    const isEitherUndefined = input.title || input.content;
+
+    if (!isEitherUndefined) {
+      throw new Error('invalid input');
     }
+
+    if (req.session.userId !== post.creatorId) {
+      throw new Error('unauthorized action');
+    }
+
+    await Post.update(id, input);
 
     return post;
   }
