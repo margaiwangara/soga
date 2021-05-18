@@ -1,6 +1,6 @@
 {
-  "name": "with-chakra-ui",
-  "version": "0.1.0",
+  "name": "@soga/web",
+  "version": "0.0.1",
   "scripts": {
     "dev": "next dev -p 2112",
     "build": "next build",
@@ -24,7 +24,13 @@
     "socket.io-client": "^4.1.1",
     "urql": "^2.0.3"
   },
-  "license": "MIT",
+  "author": "Margai Wangara <margaiwangara@gmail.com>",
+  "repository": {
+    "type": "git",
+    "directory": "packages/web",
+    "url": "git+https://github.com/margaiwangara/soga.git"
+  },
+  "license": "UNLICENSED",
   "devDependencies": {
     "@graphql-codegen/cli": "1.21.4",
     "@graphql-codegen/typescript": "1.22.0",
@@ -32,7 +38,6 @@
     "@graphql-codegen/typescript-react-apollo": "2.2.4",
     "@graphql-codegen/typescript-urql": "^2.0.6",
     "@types/node": "^15.3.0",
-    "@types/socket.io-client": "^3.0.0",
-    "typescript": "^4.2.4"
+    "@types/socket.io-client": "^3.0.0"
   }
 }

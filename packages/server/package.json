@@ -12,6 +12,7 @@
   },
   "repository": {
     "type": "git",
+    "directory": "packages/server",
     "url": "git+https://github.com/margaiwangara/soga.git"
   },
   "keywords": [
@@ -20,7 +21,7 @@
     "nodejs"
   ],
   "author": "Margai Wangara <margaiwangara@gmail.com>",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "bugs": {
     "url": "https://github.com/margaiwangara/soga/issues"
   },
@@ -37,9 +38,7 @@
     "@types/socket.io": "^3.0.2",
     "@types/uuid": "^8.3.0",
     "nodemon": "^2.0.7",
-    "rimraf": "^3.0.2",
-    "ts-node": "^9.1.1",
-    "typescript": "^4.2.4"
+    "ts-node": "^9.1.1"
   },
   "dependencies": {
     "apollo-server-express": "^2.24.0",
