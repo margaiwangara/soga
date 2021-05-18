@@ -1,33 +1,28 @@
-import 'reflect-metadata';
-import { MikroORM } from '@mikro-orm/core';
-import { __prod__ } from './constants';
-import microOrmConfig from './mikro-orm.config';
-import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
+import connectRedis from 'connect-redis';
+import cors from 'cors';
+import express from 'express';
+// import redis from 'redis';
+import session from 'express-session';
+import http from 'http';
+import Redis from 'ioredis';
+import 'reflect-metadata';
+// import { sendEmail } from './utils/sendEmail';
+import { Server, Socket } from 'socket.io';
 import { buildSchema } from 'type-graphql';
+import { createConnection } from 'typeorm';
+import { corsConfig, sessionConfig, typeOrmConfig } from './config';
+import env from './env';
 import { HelloResolver } from './resolvers/hello';
 import { PostResolver } from './resolvers/post';
 import { UserResolver } from './resolvers/user';
-// import redis from 'redis';
-import session from 'express-session';
-import connectRedis from 'connect-redis';
 import { MyContext } from './types';
-import env from './env';
-import cors from 'cors';
-// import { sendEmail } from './utils/sendEmail';
-import { Server, Socket } from 'socket.io';
-import http from 'http';
-import { corsConfig, sessionConfig } from './config';
 import { OnlineUser } from './utils/websocket';
-import Redis from 'ioredis';
 
 const main = async () => {
   try {
-    // await sendEmail('johndoe@app.com', 'Hello John', 'Welcome to Soga');
-    const orm = await MikroORM.init(microOrmConfig);
-
-    // run migrations
-    await orm.getMigrator().up();
+    // configure and connect to typeorm
+    await createConnection(typeOrmConfig);
 
     const app = express();
 
@@ -84,7 +79,7 @@ const main = async () => {
         resolvers: [HelloResolver, PostResolver, UserResolver],
         validate: false,
       }),
-      context: ({ req, res }): MyContext => ({ em: orm.em, req, res, redis }),
+      context: ({ req, res }): MyContext => ({ req, res, redis }),
     });
 
     // apply express middleware to apollo
@@ -98,7 +93,7 @@ const main = async () => {
     // const post = await orm.em.create(Post, { title: 'Hello World!' });
     // await orm.em.persistAndFlush(post);
   } catch (error) {
-    console.log('initialization of mikro-orm error', error);
+    console.log('main initialization error', error);
   }
 };
 

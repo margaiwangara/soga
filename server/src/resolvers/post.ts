@@ -1,29 +1,22 @@
+import { Arg, Int, Mutation, Query, Resolver } from 'type-graphql';
 import { Post } from '../entities/Post';
-import { MyContext } from '../types';
-import { Arg, Ctx, Int, Mutation, Query, Resolver } from 'type-graphql';
 
 @Resolver()
 export class PostResolver {
   @Query(() => [Post])
-  async posts(@Ctx() { em }: MyContext): Promise<Post[]> {
-    return await em.find(Post, {});
+  async posts(): Promise<Post[]> {
+    return await Post.find();
   }
 
   @Query(() => Post, { nullable: true })
-  async post(
-    @Arg('id') id: number,
-    @Ctx() { em }: MyContext,
-  ): Promise<Post | null> {
-    return await em.findOne(Post, { id });
+  async post(@Arg('id') id: number): Promise<Post | undefined> {
+    return await Post.findOne(id);
   }
 
   @Mutation(() => Post)
-  async createPost(
-    @Arg('title') title: string,
-    @Ctx() { em }: MyContext,
-  ): Promise<Post> {
-    const post = await em.create(Post, { title });
-    await em.persistAndFlush(post);
+  async createPost(@Arg('title') title: string): Promise<Post> {
+    const post = await Post.create({ title }).save();
+
     return post;
   }
 
@@ -31,9 +24,8 @@ export class PostResolver {
   async updatePost(
     @Arg('id', () => Int) id: number,
     @Arg('title', () => String, { nullable: true }) title: string,
-    @Ctx() { em }: MyContext,
   ): Promise<Post | null> {
-    const post = await em.findOne(Post, { id });
+    const post = await Post.findOne(id);
 
     if (!post) {
       return null;
@@ -41,18 +33,15 @@ export class PostResolver {
 
     if (typeof title !== 'undefined') {
       post.title = title;
-      await em.persistAndFlush(post);
+      await Post.update({ id }, { title });
     }
 
     return post;
   }
 
   @Mutation(() => Boolean)
-  async deletePost(
-    @Arg('id', () => Int) id: number,
-    @Ctx() { em }: MyContext,
-  ): Promise<boolean> {
-    await em.nativeDelete(Post, { id });
+  async deletePost(@Arg('id', () => Int) id: number): Promise<boolean> {
+    await Post.delete(id);
     return true;
   }
 }

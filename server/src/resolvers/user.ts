@@ -55,37 +55,33 @@ class LoginUserResponse {
 @Resolver()
 export class UserResolver {
   @Query(() => User, { nullable: true })
-  async me(@Ctx() { req, em }: MyContext): Promise<User | null> {
+  async me(@Ctx() { req }: MyContext): Promise<User | undefined> {
     // if not logged in
     if (!req.session.userId) {
-      return null;
+      return;
     }
-    const user = await em.findOne(User, { id: req.session.userId });
 
-    return user;
+    return await User.findOne(req.session.userId);
   }
 
   @Mutation(() => User)
   async register(
     @Arg('input', () => RegisterUserInput) input: RegisterUserInput,
-    @Ctx() { em }: MyContext,
   ): Promise<User> {
     const { password, ...rest } = input;
 
     const hashed = await argon2.hash(password);
-    const user = await em.create(User, { ...rest, password: hashed });
-    await em.persistAndFlush(user);
 
-    return user;
+    return await User.create({ ...rest, password: hashed }).save();
   }
 
   @Mutation(() => LoginUserResponse)
   async login(
     @Arg('input', () => EmailPasswordInput) input: EmailPasswordInput,
-    @Ctx() { em, req }: MyContext,
+    @Ctx() { req }: MyContext,
   ): Promise<LoginUserResponse> {
     const { email, password } = input;
-    const user = await em.findOne(User, { email });
+    const user = await User.findOne({ email });
 
     if (!user) {
       return {
@@ -138,10 +134,10 @@ export class UserResolver {
   @Mutation(() => Boolean)
   async forgotPassword(
     @Arg('email') email: string,
-    @Ctx() { em, redis }: MyContext,
+    @Ctx() { redis }: MyContext,
   ) {
     // check if user exists
-    const user = await em.findOne(User, { email });
+    const user = await User.findOne({ email });
 
     if (!user) {
       return true;
@@ -170,7 +166,7 @@ export class UserResolver {
   async resetPassword(
     @Arg('token') token: string,
     @Arg('password') password: string,
-    @Ctx() { em, redis }: MyContext,
+    @Ctx() { redis }: MyContext,
   ) {
     if (!password) {
       return false;
@@ -183,15 +179,15 @@ export class UserResolver {
       return false;
     }
 
-    const user = await em.findOne(User, { id: parseInt(userId) });
+    const user = await User.findOne(parseInt(userId));
 
     if (!user) {
       return false;
     }
 
     const hashedPassword = await argon2.hash(password);
-    user.password = hashedPassword;
-    await em.persistAndFlush(user);
+
+    await User.update({ id: user.id }, { password: hashedPassword });
 
     // delete token from Redis
     await redis.del(key);
