@@ -5,22 +5,25 @@ import path from 'path';
 // config dotenv
 config({ path: path.resolve(__dirname, '.env') });
 
-console.log('process.env', process.env);
-
 const env = cleanEnv(process.env, {
-  // PORT
+  // port
   PORT: num(),
 
-  // URL FOR THE CLIENT/WEB
+  // url for the client/web
   CLIENT_URL: url(),
 
-  // CURRENT NODE ENVIRONMENT
+  // node env
   NODE_ENV: str(),
 
-  // SESSION AND COOKIE
+  // session and cookie
   SESSION_SECRET: str(),
   COOKIE_EXPIRE: str(),
   COOKIE_NAME_AUTH: str(),
+
+  // email sending
+  SMTP_USERNAME: str(),
+  SMTP_PASSWORD: str(),
+  FROM_NOREPLY: str(),
 });
 
 export default env;
