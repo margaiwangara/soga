@@ -30,7 +30,7 @@
     "directory": "packages/web",
     "url": "git+https://github.com/margaiwangara/soga.git"
   },
-  "license": "The Unlicense",
+  "license": "Unlicense",
   "devDependencies": {
     "@graphql-codegen/cli": "1.21.4",
     "@graphql-codegen/typescript": "1.22.0",
