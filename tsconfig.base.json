@@ -15,7 +15,8 @@
     "baseUrl": "./packages",
     "paths": {
       "@soga/server/*": ["server/src/*"],
-      "@soga/web/*": ["web/src/*"]
+      "@soga/web/*": ["web/src/*"],
+      "@soga/rabbitmq/*": ["rabbitmq/src/*"]
     }
   },
   "exclude": ["node_modules"]
