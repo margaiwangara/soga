@@ -1,4 +1,4 @@
-import { cleanEnv, str, url, num } from 'envalid';
+import { cleanEnv, num, str, url } from 'envalid';
 import { config } from 'dotenv';
 import path from 'path';
 
@@ -15,10 +15,10 @@ const env = cleanEnv(process.env, {
   // node env
   NODE_ENV: str(),
 
-  // session and cookie
-  SESSION_SECRET: str(),
-  COOKIE_EXPIRE: str(),
-  COOKIE_NAME_AUTH: str(),
+  // email sending
+  SMTP_USERNAME: str(),
+  SMTP_PASSWORD: str(),
+  FROM_NOREPLY: str(),
 });
 
 export default env;

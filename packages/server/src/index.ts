@@ -87,7 +87,7 @@ const main = async () => {
 
     const PORT = env.PORT || 2111;
     server.listen(PORT, () =>
-      console.log(`Server running on port in ${env.NODE_ENV} mode on ${PORT}`),
+      console.log(`Server running in ${env.NODE_ENV} mode on port ${PORT}`),
     );
     // add data to table
     // const post = await orm.em.create(Post, { title: 'Hello World!' });

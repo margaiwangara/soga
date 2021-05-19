@@ -1,0 +1,27 @@
+{
+  "name": "@soga/email",
+  "version": "0.0.1",
+  "description": "Email sending service for Soga",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "nodemon --delay 500ms dist/index.js",
+    "clean": "rimraf -rf dist/*",
+    "watch": "tsc -w"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/margaiwangara/soga.git",
+    "directory": "packages/email"
+  },
+  "keywords": [
+    "email",
+    "sogamail"
+  ],
+  "author": "Margai Wangara <margaiwangara@gmail.com>",
+  "license": "Unlicense",
+  "bugs": {
+    "url": "https://github.com/margaiwangara/soga/issues"
+  },
+  "homepage": "https://github.com/margaiwangara/soga#readme"
+}

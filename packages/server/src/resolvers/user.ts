@@ -14,8 +14,13 @@ import argon2 from 'argon2';
 import env from '../env';
 import { v4 as uuidv4 } from 'uuid';
 import { sendEmail } from '../utils/sendEmail';
-import { FORGOT_PASSWORD_PREFIX } from '../constants';
+import { CONFIRM_EMAIL_PREFIX, FORGOT_PASSWORD_PREFIX } from '../constants';
+import amqp from 'amqplib';
+import { storeTokenInRedis } from '../utils/storeTokenInRedis';
+import { publishToChannel } from '../utils/rabbitMQOperations';
 
+const messageQueueConnectionString =
+  'amqps://oczncmcb:Yf99gpPMcaLfrEhKsRDNnpHagyC1SE_E@cow.rmq2.cloudamqp.com/oczncmcb';
 @InputType()
 class EmailPasswordInput {
   @Field()
@@ -67,12 +72,31 @@ export class UserResolver {
   @Mutation(() => User)
   async register(
     @Arg('input', () => RegisterUserInput) input: RegisterUserInput,
+    @Ctx() { redis }: MyContext,
   ): Promise<User> {
     const { password, ...rest } = input;
 
     const hashed = await argon2.hash(password);
 
-    return await User.create({ ...rest, password: hashed }).save();
+    const user = await User.create({ ...rest, password: hashed }).save();
+
+    // create a token for email confirmation
+    const token = uuidv4();
+    await storeTokenInRedis(redis, CONFIRM_EMAIL_PREFIX + token, user.id, 30);
+
+    // connect to RabbitMQ and add to queue
+    const connection = await amqp.connect(messageQueueConnectionString);
+    const channel = await connection.createConfirmChannel();
+    console.log('Publishing a request message to RabbitMQ Queue');
+    await publishToChannel(channel, {
+      routingKey: 'request',
+      exchangeName: 'processing',
+      data: { userId: user.id, userEmail: user.email },
+    });
+
+    // sendEmail(user.email, 'Hello There', 'Confirm Your Email!');
+
+    return user;
   }
 
   @Mutation(() => LoginUserResponse)
@@ -144,12 +168,7 @@ export class UserResolver {
     }
 
     const token = uuidv4();
-    await redis.set(
-      FORGOT_PASSWORD_PREFIX + token,
-      user.id,
-      'ex',
-      1000 * 60 * 60 * 24 * 3,
-    ); // 3 days to expire
+    await storeTokenInRedis(redis, FORGOT_PASSWORD_PREFIX + token, user.id, 3); // 3 days to expire
 
     const resetLink = `<a href="${env.CLIENT_URL}/reset-password/${token}">Reset Password</a>`;
 

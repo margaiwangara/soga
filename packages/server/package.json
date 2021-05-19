@@ -2,10 +2,10 @@
   "name": "@soga/server",
   "version": "0.0.1",
   "description": "Server-side code for Soga chat application",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "start": "node dist/index.js",
-    "dev": "nodemon dist/index.js",
+    "dev": "nodemon --delay 500ms dist/index.js",
     "clean": "rimraf -rf dist/*",
     "watch": "tsc -w"
   },
@@ -20,7 +20,7 @@
     "nodejs"
   ],
   "author": "Margai Wangara <margaiwangara@gmail.com>",
-  "license": "The Unlicense",
+  "license": "Unlicense",
   "bugs": {
     "url": "https://github.com/margaiwangara/soga/issues"
   },
@@ -32,11 +32,9 @@
     "@types/express-session": "^1.15.16",
     "@types/ioredis": "^4.26.4",
     "@types/node": "^15.0.1",
-    "@types/nodemailer": "^6.4.1",
     "@types/redis": "^2.8.28",
     "@types/socket.io": "^3.0.2",
     "@types/uuid": "^8.3.0",
-    "nodemon": "^2.0.7",
     "ts-node": "^9.1.1"
   },
   "dependencies": {
@@ -45,13 +43,10 @@
     "class-validator": "^0.13.1",
     "connect-redis": "^5.2.0",
     "cors": "^2.8.5",
-    "dotenv": "^9.0.2",
-    "envalid": "^7.1.0",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
     "graphql": "^15.5.0",
     "ioredis": "^4.27.2",
-    "nodemailer": "^6.6.0",
     "pg": "^8.6.0",
     "reflect-metadata": "^0.1.13",
     "socket.io": "^4.1.1",

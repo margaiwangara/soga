@@ -1,0 +1,30 @@
+{
+  "name": "@soga/rabbitmq",
+  "version": "0.0.1",
+  "description": "Message queue service with RabbitMQ",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "nodemon --delay 500ms dist/index.js",
+    "clean": "rimraf -rf dist/*",
+    "watch": "tsc -w"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/margaiwangara/soga.git",
+    "directory": "packages/rabbitmq"
+  },
+  "keywords": [
+    "rabbitmq",
+    "message",
+    "queue"
+  ],
+  "author": "Margai Wangara <margaiwangara@gmail.com>",
+  "license": "Unlicense",
+  "bugs": {
+    "url": "https://github.com/margaiwangara/soga/issues"
+  },
+  "homepage": "https://github.com/margaiwangara/soga#readme",
+  "dependencies": {},
+  "devDependencies": {}
+}
