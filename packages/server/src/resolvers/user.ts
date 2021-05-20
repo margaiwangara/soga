@@ -91,10 +91,8 @@ export class UserResolver {
     await publishToChannel(channel, {
       routingKey: 'request',
       exchangeName: 'processing',
-      data: { userId: user.id, userEmail: user.email },
+      data: { userId: user.id, userEmail: user.email, token },
     });
-
-    // sendEmail(user.email, 'Hello There', 'Confirm Your Email!');
 
     return user;
   }
@@ -170,13 +168,17 @@ export class UserResolver {
     const token = uuidv4();
     await storeTokenInRedis(redis, FORGOT_PASSWORD_PREFIX + token, user.id, 3); // 3 days to expire
 
-    // const resetLink = `<a href="${env.CLIENT_URL}/reset-password/${token}">Reset Password</a>`;
-
-    // await sendEmail(
-    //   user.email,
-    //   `To reset your password please click on the link below:<br/><br/>${resetLink}<br/>`,
-    //   'Reset Your Password',
-    // );
+    // connect to RabbitMQ and add to queue
+    const connection = await amqp.connect(
+      envBase.MESSAGE_QUEUE_CONNECTION_STRING,
+    );
+    const channel = await connection.createConfirmChannel();
+    console.log('Publishing a request message to RabbitMQ Queue');
+    await publishToChannel(channel, {
+      routingKey: 'request',
+      exchangeName: 'processing',
+      data: { userId: user.id, userEmail: user.email, token },
+    });
 
     return true;
   }
@@ -207,6 +209,27 @@ export class UserResolver {
     const hashedPassword = await argon2.hash(password);
 
     await User.update({ id: user.id }, { password: hashedPassword });
+
+    // delete token from Redis
+    await redis.del(key);
+
+    return true;
+  }
+
+  @Mutation(() => Boolean)
+  async confirmEmail(@Arg('token') token: string, @Ctx() { redis }: MyContext) {
+    const key = CONFIRM_EMAIL_PREFIX + token;
+    const userId = await redis.get(key);
+
+    if (!userId) {
+      return false;
+    }
+
+    const user = await User.findOne(parseInt(userId));
+
+    if (!user) {
+      return false;
+    }
 
     // delete token from Redis
     await redis.del(key);
