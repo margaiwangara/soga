@@ -1,6 +1,6 @@
 // imports
 import env from './env';
-import { ISimpleSimon } from './types';
+import { ISimpleSimon, MailSituations } from './types';
 
 // exports
-export { env, ISimpleSimon };
+export { env, ISimpleSimon, MailSituations };

@@ -7,6 +7,8 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 const env = cleanEnv(process.env, {
   // url for the client/web
   CLIENT_URL: url(),
+  RESET_PASSWORD_PATH: str(),
+  CONFIRM_EMAIL_PATH: str(),
 
   // node env
   NODE_ENV: str(),

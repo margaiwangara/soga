@@ -17,7 +17,7 @@ import { CONFIRM_EMAIL_PREFIX, FORGOT_PASSWORD_PREFIX } from '../constants';
 import amqp from 'amqplib';
 import { storeTokenInRedis } from '../utils/storeTokenInRedis';
 import { publishToChannel } from '../utils/rabbitMQOperations';
-import { env as envBase } from '@soga/shared';
+import { env as envBase, MailSituations } from '@soga/shared';
 
 @InputType()
 class EmailPasswordInput {
@@ -91,7 +91,12 @@ export class UserResolver {
     await publishToChannel(channel, {
       routingKey: 'request',
       exchangeName: 'processing',
-      data: { userId: user.id, userEmail: user.email, token },
+      data: {
+        userId: user.id,
+        userEmail: user.email,
+        token,
+        situation: MailSituations.CONFIRM_EMAIL,
+      },
     });
 
     return user;
@@ -177,7 +182,12 @@ export class UserResolver {
     await publishToChannel(channel, {
       routingKey: 'request',
       exchangeName: 'processing',
-      data: { userId: user.id, userEmail: user.email, token },
+      data: {
+        userId: user.id,
+        userEmail: user.email,
+        token,
+        situation: MailSituations.FORGOT_PASSWORD,
+      },
     });
 
     return true;

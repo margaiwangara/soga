@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 import env from './env';
-import { env as envBase } from '@soga/shared';
+import { env as envBase, MailSituations } from '@soga/shared';
 import amqp, {
   Channel,
   ConfirmChannel,
@@ -8,6 +8,7 @@ import amqp, {
   ConsumeMessage,
 } from 'amqplib';
 import http, { IncomingMessage, ServerResponse } from 'http';
+import { forgotPasswordTemplate, confirmEmailTemplate } from './templates';
 
 export async function sendEmail(to: string, content: string, subject: string) {
   // const testAccount = await nodemailer.createTestAccount();
@@ -71,11 +72,35 @@ function consume({ connection, channel }: ConsumeProps): Promise<void> {
           // process data
           // const processingResults =
           // await processMessage(msgBody.requestData);
-          await sendEmail(
-            user.userEmail,
-            'Welcome to Soga. We are glad to have you.',
-            'Welcome to Soga',
-          );
+
+          // check type of situation
+
+          if (user !== null) {
+            switch (user.situation) {
+              case MailSituations.FORGOT_PASSWORD:
+                await sendEmail(
+                  user.userEmail,
+                  forgotPasswordTemplate(user.userEmail, user.token),
+                  'Reset Your Password',
+                );
+                break;
+              case MailSituations.CONFIRM_EMAIL:
+                await sendEmail(
+                  user.userEmail,
+                  confirmEmailTemplate(user.userEmail, user.token),
+                  'Confirm Your Email',
+                );
+                break;
+              default:
+                break;
+            }
+          }
+
+          // await sendEmail(
+          //   user.userEmail,
+          //   'Welcome to Soga. We are glad to have you.',
+          //   'Welcome to Soga',
+          // );
 
           // acknowledge message has been processed
           await channel.ack(msg);
