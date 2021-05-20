@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import env from './env';
+import { env as envBase } from '@soga/shared';
 import amqp, {
   Channel,
   ConfirmChannel,
@@ -16,13 +17,13 @@ export async function sendEmail(to: string, content: string, subject: string) {
     port: 587,
     secure: false,
     auth: {
-      user: env.SMTP_USERNAME,
-      pass: env.SMTP_PASSWORD,
+      user: envBase.SMTP_USERNAME,
+      pass: envBase.SMTP_PASSWORD,
     },
   });
 
   const info = await transporter.sendMail({
-    from: env.FROM_NOREPLY,
+    from: envBase.FROM_NOREPLY,
     to,
     subject,
     html: content,
@@ -58,14 +59,14 @@ type ConsumeProps = {
 function consume({ connection, channel }: ConsumeProps): Promise<void> {
   return new Promise((resolve, reject) => {
     channel.consume(
-      'processing.requests',
+      `processing.requests.${envBase.MAILING_QUEUE_NAME}`,
       async function (msg: ConsumeMessage | null) {
         if (msg !== null) {
           const msgBody = JSON.parse(msg?.content.toString() || '');
           const user = msgBody ? { ...msgBody } : null;
 
           // console.log('response', { user, msgBody });
-          console.log('message', msg);
+          // console.log('message', msg);
 
           // process data
           // const processingResults =

@@ -11,12 +11,15 @@
     "strictFunctionTypes": true,
     "noImplicitThis": true,
     "noImplicitReturns": true,
+    "allowJs": true,
     "noFallthroughCasesInSwitch": true,
     "baseUrl": "./packages",
     "paths": {
       "@soga/server/*": ["server/src/*"],
       "@soga/web/*": ["web/src/*"],
-      "@soga/rabbitmq/*": ["rabbitmq/src/*"]
+      "@soga/rabbitmq/*": ["rabbitmq/src/*"],
+      "@soga/email/*": ["email/src/*"],
+      "@soga/shared/*": ["shared/*"]
     }
   },
   "exclude": ["node_modules"]

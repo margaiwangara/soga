@@ -18,6 +18,7 @@ import { PostResolver } from './resolvers/post';
 import { UserResolver } from './resolvers/user';
 import { MyContext } from './types';
 import { OnlineUser } from './utils/websocket';
+import { env as envBase } from '@soga/shared';
 
 const main = async () => {
   try {
@@ -87,7 +88,7 @@ const main = async () => {
 
     const PORT = env.PORT || 2111;
     server.listen(PORT, () =>
-      console.log(`Server running in ${env.NODE_ENV} mode on port ${PORT}`),
+      console.log(`Server running in ${envBase.NODE_ENV} mode on port ${PORT}`),
     );
     // add data to table
     // const post = await orm.em.create(Post, { title: 'Hello World!' });

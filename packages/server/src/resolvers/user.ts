@@ -13,14 +13,12 @@ import {
 import argon2 from 'argon2';
 import env from '../env';
 import { v4 as uuidv4 } from 'uuid';
-import { sendEmail } from '../utils/sendEmail';
 import { CONFIRM_EMAIL_PREFIX, FORGOT_PASSWORD_PREFIX } from '../constants';
 import amqp from 'amqplib';
 import { storeTokenInRedis } from '../utils/storeTokenInRedis';
 import { publishToChannel } from '../utils/rabbitMQOperations';
+import { env as envBase } from '@soga/shared';
 
-const messageQueueConnectionString =
-  'amqps://oczncmcb:Yf99gpPMcaLfrEhKsRDNnpHagyC1SE_E@cow.rmq2.cloudamqp.com/oczncmcb';
 @InputType()
 class EmailPasswordInput {
   @Field()
@@ -85,7 +83,9 @@ export class UserResolver {
     await storeTokenInRedis(redis, CONFIRM_EMAIL_PREFIX + token, user.id, 30);
 
     // connect to RabbitMQ and add to queue
-    const connection = await amqp.connect(messageQueueConnectionString);
+    const connection = await amqp.connect(
+      envBase.MESSAGE_QUEUE_CONNECTION_STRING,
+    );
     const channel = await connection.createConfirmChannel();
     console.log('Publishing a request message to RabbitMQ Queue');
     await publishToChannel(channel, {
@@ -170,13 +170,13 @@ export class UserResolver {
     const token = uuidv4();
     await storeTokenInRedis(redis, FORGOT_PASSWORD_PREFIX + token, user.id, 3); // 3 days to expire
 
-    const resetLink = `<a href="${env.CLIENT_URL}/reset-password/${token}">Reset Password</a>`;
+    // const resetLink = `<a href="${env.CLIENT_URL}/reset-password/${token}">Reset Password</a>`;
 
-    await sendEmail(
-      user.email,
-      `To reset your password please click on the link below:<br/><br/>${resetLink}<br/>`,
-      'Reset Your Password',
-    );
+    // await sendEmail(
+    //   user.email,
+    //   `To reset your password please click on the link below:<br/><br/>${resetLink}<br/>`,
+    //   'Reset Your Password',
+    // );
 
     return true;
   }

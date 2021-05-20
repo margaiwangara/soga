@@ -23,5 +23,11 @@
   "bugs": {
     "url": "https://github.com/margaiwangara/soga/issues"
   },
-  "homepage": "https://github.com/margaiwangara/soga#readme"
+  "homepage": "https://github.com/margaiwangara/soga#readme",
+  "dependencies": {
+    "nodemailer": "^6.6.0"
+  },
+  "devDependencies": {
+    "@types/nodemailer": "^6.4.1"
+  }
 }

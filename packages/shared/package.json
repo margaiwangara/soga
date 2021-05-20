@@ -1,0 +1,13 @@
+{
+  "name": "@soga/shared",
+  "version": "0.0.1",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "license": "Unlicense",
+  "scripts": {
+    "clean": "rimraf -rf dist/*",
+    "dev": "nodemon dist/index.js",
+    "build": "tsc -b .",
+    "watch": "tsc -w"
+  }
+}

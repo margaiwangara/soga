@@ -5,9 +5,10 @@ import { Redis } from 'ioredis';
 import { createConnection } from 'typeorm';
 import { Post } from './entities/Post';
 import { User } from './entities/User';
+import { env as envBase } from '@soga/shared';
 
 export const corsConfig = {
-  origin: env.CLIENT_URL,
+  origin: envBase.CLIENT_URL,
   credentials: true,
 } as const;
 
